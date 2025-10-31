@@ -38,6 +38,7 @@ const DashboardMainPage = async () => {
             onDuplicateProject={duplicateProjectById}
           />
         )} */}
+        <ProjectTable />
       </div>
     </div>
   );
