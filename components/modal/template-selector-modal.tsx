@@ -231,14 +231,16 @@ const TemplateSelectionModal = ({
       const user = await currentUser();
       if (user?.id) {
         // TODO: Create playground project
-        const playground = await createPlaygroundProjectHandler(
-          templateStructure,
-          webContainerFormat,
-          user.id
-        );
+        const playgroundProject = await fetch("/api/playground-projects/", {
+          method: "POST",
+          body: JSON.stringify({
+            fileStructure: templateStructure,
+            webContainerStructure: webContainerFormat,
+            userId: user.id,
+          }),
+        }).then((res) => res.json());
         // TODO: Redirect to playground
-        console.log("Create Project Handler", templateUniqueId);
-        router.push("/playground/" + playground.id);
+        router.push("/playground/" + playgroundProject.project.id);
       }
     }
   };

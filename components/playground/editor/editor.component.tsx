@@ -1,5 +1,5 @@
 import { Editor } from "@monaco-editor/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../sidebarFileManager/sidebar";
 import { FileTree } from "../sidebarFileManager/fileTree.component";
 import {
@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "../../../store/hooks.store";
 import {
   addTabFile,
   setActiveFileReducer,
+  setSelectedPlaygroundProject,
 } from "../../../store/redux/editor/editor.slice";
 import { getLanguageFromFileName } from "./utils/getLanguageFromFileName";
 import { OpenedFilesTab } from "./components/openedFilesTab/openedFilesTab.component";
@@ -24,6 +25,7 @@ import {
 import { convertRootToWebContainerFormat } from "../sidebarFileManager/utils/convertToWebContainerFormat";
 import { addAbsolutePaths } from "../sidebarFileManager/utils/convertToSidebarFormat";
 import type { WebContainer } from "@webcontainer/api";
+import { PlaygroundProject } from "@/@types/playgroundProject.types";
 
 const dummyDir: Directory = {
   id: "1",
@@ -47,22 +49,53 @@ export function MEditor({ webContainer, playgroundId }: Props) {
   //   (store) => store.codeData.monacoEditorCodeData
   // );
   const dispatch = useDispatch();
-  useFilesFromSandbox(playgroundId, (root) => {
-    // if (!editor.activeFile) {
-    //   const file = findFileByName(root, "index.tsx");
-    //   if (file) {
-    //     // dispatch(setActiveFileReducer(file));
-    //   }
-    // }
+  // useFilesFromSandbox(playgroundId, (root) => {
+  //   // if (!editor.activeFile) {
+  //   //   const file = findFileByName(root, "index.tsx");
+  //   //   if (file) {
+  //   //     // dispatch(setActiveFileReducer(file));
+  //   //   }
+  //   // }
 
-    dispatch(setMonacoEditorCodeData(JSON.parse(JSON.stringify(root))));
-    const convertedWebContainerCodeData = convertRootToWebContainerFormat(
-      JSON.parse(JSON.stringify(root))
-    );
-    dispatch(setWebContainerCodeData(convertedWebContainerCodeData));
-    const x = addAbsolutePaths(root);
-    setRootDir(x);
-  });
+  //   dispatch(setMonacoEditorCodeData(JSON.parse(JSON.stringify(root))));
+  //   const convertedWebContainerCodeData = convertRootToWebContainerFormat(
+  //     JSON.parse(JSON.stringify(root))
+  //   );
+  //   dispatch(setWebContainerCodeData(convertedWebContainerCodeData));
+  //   const x = addAbsolutePaths(root);
+  //   setRootDir(x);
+  // });
+  useEffect(() => {
+    (async () => {
+      try {
+        const playgroundProject = await fetch(
+          `/api/playground-projects/${playgroundId}`,
+          { method: "GET" }
+        ).then((res) => res.json() as Promise<{ project: PlaygroundProject }>);
+        dispatch(
+          setSelectedPlaygroundProject(
+            JSON.parse(JSON.stringify(playgroundProject.project))
+          )
+        );
+        if (playgroundProject.project.fileStructure) {
+          console.log(playgroundProject.project.fileStructure);
+          const x = addAbsolutePaths(playgroundProject.project.fileStructure);
+          setRootDir(x);
+        }
+        if (playgroundProject.project.webContainerStructure) {
+          dispatch(
+            setWebContainerCodeData(
+              JSON.parse(
+                JSON.stringify(playgroundProject.project.webContainerStructure)
+              )
+            )
+          );
+        }
+      } catch {
+        console.log("Error");
+      }
+    })();
+  }, [playgroundId, dispatch]);
 
   const onSelect = (file: File) => {
     dispatch(addTabFile(file));

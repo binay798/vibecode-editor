@@ -23,7 +23,7 @@ interface SubTreeProps {
 
 const SubTree = (props: SubTreeProps) => {
   return (
-    <div>
+    <div className="text-sm">
       {props.directory.dirs.sort(sortDir).map((dir) => (
         <React.Fragment key={dir.id}>
           <DirDiv

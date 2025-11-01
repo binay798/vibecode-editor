@@ -1,14 +1,18 @@
+import { PlaygroundProject } from "@/@types/playgroundProject.types";
+import { File } from "@/components/playground/sidebarFileManager/utils/fileManager";
 import { createSlice } from "@reduxjs/toolkit";
-import type { File } from "../../../components/sidebarFileManager/utils/fileManager";
 
 interface InitialState {
   activeFile: File | null;
   openTabFiles: File[] | null;
+  selectedPlaygroundProject: PlaygroundProject | null;
 }
 const initialState: InitialState = {
   activeFile: null,
   openTabFiles: null,
+  selectedPlaygroundProject: null,
 };
+
 const editorSlice = createSlice({
   name: "editor",
   initialState,
@@ -49,9 +53,20 @@ const editorSlice = createSlice({
         }
       }
     },
+    setSelectedPlaygroundProject: (
+      state,
+      action: { payload: PlaygroundProject }
+    ) => {
+      state.selectedPlaygroundProject = action.payload;
+    },
   },
 });
 
-export const { setActiveFileReducer, addTabFile, removeTabFile } =
-  editorSlice.actions;
+export const {
+  setActiveFileReducer,
+  addTabFile,
+  removeTabFile,
+  setSelectedPlaygroundProject,
+} = editorSlice.actions;
+
 export default editorSlice.reducer;
