@@ -111,3 +111,13 @@ model ChatMessage {
 
   @@index([userId])
 }
+
+
+model PlaygroundProjects {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  fileStructure Json
+  webContainerStructure Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}

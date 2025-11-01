@@ -26,6 +26,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import {
+  createPlaygroundProjectHandler,
+  getRequiredCodeTemplate,
+} from "../playground/handlers/playground.handlers";
+import { convertToWebContainerFormat } from "../playground/sidebarFileManager/utils/convertToWebContainerFormat";
+import { currentUser } from "@/features/auth/actions";
+import { useRouter } from "next/navigation";
 
 // TemplateSelectionModal.tsx
 type TemplateSelectionModalProps = {
@@ -40,6 +47,7 @@ type TemplateSelectionModalProps = {
 
 interface TemplateOption {
   id: string;
+  uniqueId: string;
   name: string;
   description: string;
   icon: string;
@@ -53,6 +61,7 @@ interface TemplateOption {
 const templates: TemplateOption[] = [
   {
     id: "react",
+    uniqueId: "93b20f8a-7a43-46ff-9c3e-2ab49cfdbf6d",
     name: "React",
     description:
       "A JavaScript library for building user interfaces with component-based architecture",
@@ -74,6 +83,7 @@ const templates: TemplateOption[] = [
     tags: ["React", "SSR", "Fullstack"],
     features: ["Server Components", "API Routes", "File-based Routing"],
     category: "fullstack",
+    uniqueId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   },
   {
     id: "express",
@@ -86,6 +96,7 @@ const templates: TemplateOption[] = [
     tags: ["Node.js", "API", "Backend"],
     features: ["Middleware", "Routing", "HTTP Utilities"],
     category: "backend",
+    uniqueId: "3d6f4e2a-1b8c-4f5e-9a7d-8c2b1e4f6a3d",
   },
   {
     id: "vue",
@@ -98,6 +109,7 @@ const templates: TemplateOption[] = [
     tags: ["UI", "Frontend", "JavaScript"],
     features: ["Reactive Data Binding", "Component System", "Virtual DOM"],
     category: "frontend",
+    uniqueId: "e1b4d4f7-8e93-420d-bc2d-05af7cdff01d",
   },
   {
     id: "hono",
@@ -114,6 +126,7 @@ const templates: TemplateOption[] = [
       "Modular Architecture",
     ],
     category: "backend",
+    uniqueId: "a1b2c3d4-e5f6-4789-a012-3b4c5d6e7f8a",
   },
   {
     id: "angular",
@@ -132,6 +145,7 @@ const templates: TemplateOption[] = [
       "TypeScript Support",
     ],
     category: "fullstack",
+    uniqueId: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
   },
 ];
 
@@ -147,6 +161,7 @@ const TemplateSelectionModal = ({
     "all" | "frontend" | "backend" | "fullstack"
   >("all");
   const [projectName, setProjectName] = useState("");
+  const router = useRouter();
 
   const filteredTemplates = templates.filter((template) => {
     const matchesSearch =
@@ -172,37 +187,59 @@ const TemplateSelectionModal = ({
     }
   };
 
-  const handleCreateProject = () => {
-    if (selectedTemplate) {
-      const templateMap: Record<
-        string,
-        "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR"
-      > = {
-        react: "REACT",
-        nextjs: "NEXTJS",
-        express: "EXPRESS",
-        vue: "VUE",
-        hono: "HONO",
-        angular: "ANGULAR",
-      };
+  // const handleCreateProject = () => {
+  //   if (selectedTemplate) {
+  //     const templateMap: Record<
+  //       string,
+  //       "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR"
+  //     > = {
+  //       react: "REACT",
+  //       nextjs: "NEXTJS",
+  //       express: "EXPRESS",
+  //       vue: "VUE",
+  //       hono: "HONO",
+  //       angular: "ANGULAR",
+  //     };
 
-      const template = templates.find((t) => t.id === selectedTemplate);
-      onSubmit({
-        title: projectName || `New ${template?.name} Project`,
-        template: templateMap[selectedTemplate] || "REACT",
-        description: template?.description,
-      });
+  //     const template = templates.find((t) => t.id === selectedTemplate);
+  //     onSubmit({
+  //       title: projectName || `New ${template?.name} Project`,
+  //       template: templateMap[selectedTemplate] || "REACT",
+  //       description: template?.description,
+  //     });
 
-      console.log(
-        `Creating ${projectName || "new project"} with template: ${
-          template?.name
-        }`
-      );
-      onClose();
-      // Reset state for next time
-      setStep("select");
-      setSelectedTemplate(null);
-      setProjectName("");
+  //     console.log(
+  //       `Creating ${projectName || "new project"} with template: ${
+  //         template?.name
+  //       }`
+  //     );
+  //     onClose();
+  //     // Reset state for next time
+  //     setStep("select");
+  //     setSelectedTemplate(null);
+  //     setProjectName("");
+  //   }
+  // };
+
+  const handleCreateProject = async (templateUniqueId?: string) => {
+    if (templateUniqueId) {
+      // TODO: Get Template Structure
+      const templateStructure = await getRequiredCodeTemplate(templateUniqueId);
+      // TODO: Convert to web container format
+      const webContainerFormat = convertToWebContainerFormat(templateStructure);
+      console.log(webContainerFormat);
+      const user = await currentUser();
+      if (user?.id) {
+        // TODO: Create playground project
+        const playground = await createPlaygroundProjectHandler(
+          templateStructure,
+          webContainerFormat,
+          user.id
+        );
+        // TODO: Redirect to playground
+        console.log("Create Project Handler", templateUniqueId);
+        router.push("/playground/" + playground.id);
+      }
     }
   };
 
@@ -450,7 +487,11 @@ const TemplateSelectionModal = ({
               </Button>
               <Button
                 className="bg-[#E93F3F] hover:bg-[#d03636]"
-                onClick={handleCreateProject}
+                onClick={() =>
+                  handleCreateProject(
+                    templates.find((el) => el.id === selectedTemplate)?.uniqueId
+                  )
+                }
               >
                 Create Project
               </Button>
