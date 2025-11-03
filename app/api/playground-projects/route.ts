@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { fileStructure, webContainerStructure, userId } =
+    const { fileStructure, webContainerStructure, userId, name, description } =
       await request.json();
 
     const project = await db.playgroundProjects.create({
@@ -12,6 +12,8 @@ export async function POST(request: Request) {
         fileStructure,
         webContainerStructure,
         userId,
+        name,
+        description,
       },
     });
 

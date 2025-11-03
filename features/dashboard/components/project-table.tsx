@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { format } from "date-fns";
-import type { Project } from "../types";
+import type { Project, User } from "../types";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -42,7 +42,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MoreHorizontal,
   Edit3,
@@ -52,8 +52,12 @@ import {
   Download,
   Eye,
 } from "lucide-react";
-import { toast } from "sonner";
 import { MarkedToggleButton } from "./toggle-star";
+import { projectServices } from "@/store/redux/projects/projects.service";
+import { currentUser } from "@/features/auth/actions";
+import { useDispatch, useSelector } from "@/store/hooks.store";
+import { setProjectList } from "@/store/redux/projects/projects.slice";
+import { PlaygroundProject } from "@/@types/playgroundProject.types";
 
 interface ProjectTableProps {
   projects: Project[];
@@ -72,9 +76,43 @@ interface EditProjectData {
 }
 
 export default function ProjectTable() {
+  const dispatch = useDispatch();
+  const [curUser, setCurUser] = useState<User | null>(null);
+  const { projectList } = useSelector((store) => store.projects);
+  useEffect(() => {
+    (async () => {
+      try {
+        if (curUser?.id) {
+          const projectList = await projectServices.getProjectList(curUser.id);
+          dispatch(setProjectList(projectList.projects));
+        }
+      } catch (err) {}
+    })();
+  }, [dispatch, curUser]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const user = await currentUser();
+        if (user) {
+          // @ts-ignore
+          setCurUser(user);
+        }
+      } catch {}
+    })();
+  }, []);
+
+  const deleteProject = async (projectId: string) => {
+    await projectServices.deleteProject(projectId);
+    if (curUser) {
+      const projectList = await projectServices.getProjectList(curUser.id);
+      dispatch(setProjectList(projectList.projects));
+    }
+  };
+
   return (
     <>
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border rounded-lg overflow-hidden w-full">
         <Table>
           <TableHeader>
             <TableRow>
@@ -86,100 +124,114 @@ export default function ProjectTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">
-                <div className="flex flex-col">
-                  <Link href={`/playground/`} className="hover:underline">
-                    <span className="font-semibold">Test</span>
-                  </Link>
-                  <span className="text-sm text-gray-500 line-clamp-1">
-                    Description
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant="outline"
-                  className="bg-[#E93F3F15] text-[#E93F3F] border-[#E93F3F]"
-                >
-                  Template
-                </Badge>
-              </TableCell>
-              <TableCell>{format(new Date(), "MMM d, yyyy")}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full overflow-hidden">
-                    <Image
-                      src={"/placeholder.svg"}
-                      // alt={project.user.name}
-                      alt="test"
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                    />
-                  </div>
-                  <span className="text-sm">Binay Stha</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <MarkedToggleButton
-                        markedForRevision={true}
-                        // id={project.id}
-                        id=""
-                      />
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/playground`} className="flex items-center">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Open Project
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+            {projectList?.map((proj: PlaygroundProject, id) => {
+              return (
+                <TableRow key={id}>
+                  <TableCell className="font-medium">
+                    <div className="flex flex-col">
                       <Link
-                        href={`/playground`}
-                        target="_blank"
-                        className="flex items-center"
+                        href={`/playground/${proj.id}`}
+                        className="hover:underline"
                       >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Open in New Tab
+                        <span className="font-semibold">
+                          {proj?.name ?? proj.id}
+                        </span>
                       </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => {}}>
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      Edit Project
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => {}}>
-                      <Copy className="h-4 w-4 mr-2" />
-                      Duplicate
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                    // onClick={() => copyProjectUrl(project.id)}
+                      <span className="text-sm text-gray-500 line-clamp-1">
+                        {proj?.description ?? proj.userId}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className="bg-[#E93F3F15] text-[#E93F3F] border-[#E93F3F]"
                     >
-                      <Download className="h-4 w-4 mr-2" />
-                      Copy URL
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => {}}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Project
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
+                      Template
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(proj.createdAt), "MMM d, yyyy")}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full overflow-hidden">
+                        <Image
+                          src={curUser?.image ?? "/placeholder.jpg"}
+                          // alt={project.user.name}
+                          alt="test"
+                          width={32}
+                          height={32}
+                          className="object-cover"
+                        />
+                      </div>
+                      <span className="text-sm">{curUser?.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem asChild>
+                          <MarkedToggleButton
+                            markedForRevision={true}
+                            // id={project.id}
+                            id=""
+                          />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/playground`}
+                            className="flex items-center"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Open Project
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/playground`}
+                            target="_blank"
+                            className="flex items-center"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Open in New Tab
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => {}}>
+                          <Edit3 className="h-4 w-4 mr-2" />
+                          Edit Project
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {}}>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                        // onClick={() => copyProjectUrl(project.id)}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Copy URL
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => deleteProject(proj?.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Project
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>

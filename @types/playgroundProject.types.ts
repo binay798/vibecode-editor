@@ -3,6 +3,8 @@ import { FileSystemTree } from "@/components/playground/webcontainer/webcontaine
 
 export interface PlaygroundProject {
   id: string;
+  name: string;
+  description?: string;
   userId: string;
   fileStructure: Directory | null;
   webContainerStructure: FileSystemTree | null;

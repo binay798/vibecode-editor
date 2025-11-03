@@ -1,6 +1,6 @@
+import { Directory } from "@/components/playground/sidebarFileManager/utils/fileManager";
+import { FileSystemTree } from "@/components/playground/webcontainer/webcontainer.types";
 import { createSlice } from "@reduxjs/toolkit";
-import type { Directory } from "../../../components/sidebarFileManager/utils/fileManager";
-import type { FileSystemTree } from "../../../components/webcontainer/webcontainer.types";
 
 interface InitialState {
   monacoEditorCodeData: Directory | null;

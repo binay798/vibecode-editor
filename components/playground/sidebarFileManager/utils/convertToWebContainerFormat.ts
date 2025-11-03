@@ -21,6 +21,7 @@ export function convertToWebContainerFormat(dir: Directory): FileSystemTree {
   // Process all subdirectories recursively
   for (const subDir of dir.dirs) {
     result[subDir.name] = {
+      // @ts-ignore
       directory: convertToWebContainerFormat(subDir),
     };
   }

@@ -1,12 +1,14 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import editorReducer from "./redux/editor/editor.slice";
 import codeDataReducer from "./redux/codeData/codeData.slice";
+import projectReducer from "./redux/projects/projects.slice";
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 
 const rootReducers = combineReducers({
   editor: editorReducer,
   codeData: codeDataReducer,
+  projects: projectReducer,
 });
 
 // 2️⃣ Persist config

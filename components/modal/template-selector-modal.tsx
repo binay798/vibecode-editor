@@ -227,7 +227,6 @@ const TemplateSelectionModal = ({
       const templateStructure = await getRequiredCodeTemplate(templateUniqueId);
       // TODO: Convert to web container format
       const webContainerFormat = convertToWebContainerFormat(templateStructure);
-      console.log(webContainerFormat);
       const user = await currentUser();
       if (user?.id) {
         // TODO: Create playground project
@@ -237,6 +236,8 @@ const TemplateSelectionModal = ({
             fileStructure: templateStructure,
             webContainerStructure: webContainerFormat,
             userId: user.id,
+            name: projectName,
+            description: "Initial Setup",
           }),
         }).then((res) => res.json());
         // TODO: Redirect to playground

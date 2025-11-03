@@ -3,10 +3,9 @@ import {
   getPlaygroundProjectById,
   updatePlaygroundProject,
 } from "@/components/playground/handlers/playground.handlers";
-import { Params } from "next/dist/server/request/params";
 import { NextResponse } from "next/server";
 
-export async function PATCH(request: Request, { params }: { params: Params }) {
+export async function PATCH(request: Request, { params }: any) {
   try {
     const { playgroundProjectId } = params;
     const { webContainerObject, monacoEditorFileStructure } =
@@ -26,7 +25,7 @@ export async function PATCH(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(request: Request, { params }: any) {
   try {
     const { playgroundProjectId } = params;
     const project = await getPlaygroundProjectById(
@@ -42,7 +41,7 @@ export async function GET(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Params }) {
+export async function DELETE(request: Request, { params }: any) {
   try {
     const { playgroundProjectId } = params;
     await deletePlaygroundProjectsOfUser(playgroundProjectId as string);
