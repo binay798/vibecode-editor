@@ -12,6 +12,7 @@ import { FileEditTab } from "../sidebarFileManager/components/fileEditTab/fileEd
 import { useDispatch, useSelector } from "../../../store/hooks.store";
 import {
   addTabFile,
+  resetEditor,
   setActiveFileReducer,
   setSelectedPlaygroundProject,
 } from "../../../store/redux/editor/editor.slice";
@@ -65,6 +66,10 @@ export function MEditor({ webContainer, playgroundId }: Props) {
   //   const x = addAbsolutePaths(root);
   //   setRootDir(x);
   // });
+
+  useEffect(() => {
+    dispatch(resetEditor());
+  }, [dispatch]);
   useEffect(() => {
     (async () => {
       try {

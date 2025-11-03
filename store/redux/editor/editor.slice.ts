@@ -6,11 +6,13 @@ interface InitialState {
   activeFile: File | null;
   openTabFiles: File[] | null;
   selectedPlaygroundProject: PlaygroundProject | null;
+  terminalInitialized: boolean;
 }
 const initialState: InitialState = {
   activeFile: null,
   openTabFiles: null,
   selectedPlaygroundProject: null,
+  terminalInitialized: false,
 };
 
 const editorSlice = createSlice({
@@ -19,6 +21,12 @@ const editorSlice = createSlice({
   reducers: {
     setActiveFileReducer: (state, action: { payload: File }) => {
       state.activeFile = action.payload;
+    },
+    resetEditor: (state) => {
+      state.activeFile = null;
+      state.openTabFiles = null;
+      state.selectedPlaygroundProject = null;
+      state.terminalInitialized = false;
     },
     addTabFile: (state, action: { payload: File }) => {
       const alreadyExist =
@@ -59,6 +67,10 @@ const editorSlice = createSlice({
     ) => {
       state.selectedPlaygroundProject = action.payload;
     },
+
+    setTerminalState: (state, action: { payload: boolean }) => {
+      state.terminalInitialized = action.payload;
+    },
   },
 });
 
@@ -67,6 +79,8 @@ export const {
   addTabFile,
   removeTabFile,
   setSelectedPlaygroundProject,
+  setTerminalState,
+  resetEditor,
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

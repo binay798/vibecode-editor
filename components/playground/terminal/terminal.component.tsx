@@ -3,7 +3,8 @@ import "@xterm/xterm/css/xterm.css";
 import React, { useEffect } from "react";
 import { FitAddon } from "@xterm/addon-fit";
 import type { WebContainer } from "@webcontainer/api";
-import { useSelector } from "../../../store/hooks.store";
+import { useDispatch, useSelector } from "../../../store/hooks.store";
+import { setTerminalState } from "@/store/redux/editor/editor.slice";
 
 interface Props {
   webContainer: WebContainer;
@@ -13,6 +14,7 @@ export function CustomTerminal({ webContainer }: Props) {
   const [terminal, setTerminal] = React.useState<XTerminal | null>(null);
   const fitAddonRef = React.useRef<FitAddon | null>(null);
   const codeData = useSelector((store) => store.codeData);
+  const dispatch = useDispatch();
 
   React.useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
@@ -32,6 +34,7 @@ export function CustomTerminal({ webContainer }: Props) {
 
   useEffect(() => {
     (async () => {
+      dispatch(setTerminalState(false));
       if (codeData.monacoEditorCodeData && terminal && webContainer) {
         // 4️⃣ Spawn npm install
         const installProcess = await webContainer.spawn("npm", ["install"]);
@@ -61,10 +64,11 @@ export function CustomTerminal({ webContainer }: Props) {
               },
             })
           );
+          dispatch(setTerminalState(true));
         }
       }
     })();
-  }, [codeData.monacoEditorCodeData, terminal, webContainer]);
+  }, [codeData.monacoEditorCodeData, terminal, webContainer, dispatch]);
 
   React.useEffect(() => {
     if (!terminalRef.current) return;

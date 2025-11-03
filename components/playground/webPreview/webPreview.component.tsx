@@ -1,3 +1,4 @@
+import { useSelector } from "@/store/hooks.store";
 import type { WebContainer } from "@webcontainer/api";
 import React, { useRef } from "react";
 
@@ -6,6 +7,7 @@ interface Props {
 }
 export function WebPreview({ webContainer }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { terminalInitialized } = useSelector((store) => store.editor);
   React.useEffect(() => {
     if (!webContainer || !iframeRef.current) return;
 
@@ -16,7 +18,7 @@ export function WebPreview({ webContainer }: Props) {
 
   return (
     <div className="w-full h-full ">
-      <iframe ref={iframeRef} className="h-full w-full " src="loading.html" />
+      <iframe ref={iframeRef} className="h-full w-full " src="/loading.html" />
     </div>
   );
 }
