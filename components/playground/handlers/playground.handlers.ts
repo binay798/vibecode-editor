@@ -3,6 +3,7 @@ import { Directory } from "../sidebarFileManager/utils/fileManager";
 import { FileSystemTree } from "../webcontainer/webcontainer.types";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { TEMPLATE_LIST } from "@/constants/templates.constants";
+import { PlaygroundProject } from "@/@types/playgroundProject.types";
 
 export function createPlaygroundProjectHandler(
   monacoEditorFileStructurePayload: Directory,

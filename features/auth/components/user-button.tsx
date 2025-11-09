@@ -15,8 +15,7 @@ import LogoutButton from "./logout-button";
 import { useCurrentUser } from "../hooks/use-current-user";
 
 const UserButton = () => {
-
-  const user = useCurrentUser()
+  const user = useCurrentUser();
 
   return (
     <DropdownMenu>
@@ -31,21 +30,18 @@ const UserButton = () => {
         </div>
       </DropdownMenuTrigger>
 
-    <DropdownMenuContent className="mr-4">
-      <DropdownMenuItem>
-        <span>
-          {user?.email}
-        </span>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator/>
+      <DropdownMenuContent className="mr-4">
+        <DropdownMenuItem>
+          <span className="px-4">{user?.email}</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <LogoutButton>
-            <DropdownMenuItem>
-                <LogOut className="h-4 w-4 mr-2"/>
-                LogOut
-            </DropdownMenuItem>
+          <DropdownMenuItem>
+            <LogOut className="h-4 w-4 mr-2" />
+            LogOut
+          </DropdownMenuItem>
         </LogoutButton>
-    </DropdownMenuContent>
-
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 };

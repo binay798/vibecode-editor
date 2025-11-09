@@ -3,9 +3,615 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>WebContainer Loading</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: #0a0a0f;
+        color: #ffffff;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .loading-container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        padding: 40px;
+      }
+
+      /* Animated Background */
+      .bg-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
+
+      .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(102, 126, 234, 0.6);
+        border-radius: 50%;
+        animation: float-particle 15s infinite ease-in-out;
+      }
+
+      @keyframes float-particle {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--tx), var(--ty)) scale(0.5);
+          opacity: 0;
+        }
+      }
+
+      /* Main Loading Card */
+      .loading-card {
+        position: relative;
+        z-index: 1;
+        background: rgba(20, 20, 30, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 48px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Logo Animation */
+      .logo-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 32px;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        animation: pulse-logo 2s ease-in-out infinite;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+      }
+
+      @keyframes pulse-logo {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 15px 50px rgba(102, 126, 234, 0.6);
+        }
+      }
+
+      /* Status Text */
+      .status-text {
+        text-align: center;
+        margin-bottom: 12px;
+      }
+
+      .status-text h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .status-text p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* Progress Bar */
+      .progress-container {
+        margin: 32px 0;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          #667eea 0%,
+          #764ba2 50%,
+          #f093fb 100%
+        );
+        background-size: 200% 100%;
+        border-radius: 10px;
+        width: 0%;
+        animation: progress-animation 2s ease-in-out;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress-fill::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .progress-percentage {
+        text-align: center;
+        margin-top: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      /* Installation Steps */
+      .steps-container {
+        margin-top: 32px;
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 0;
+        opacity: 0.4;
+        transition: opacity 0.3s;
+      }
+
+      .step.active {
+        opacity: 1;
+      }
+
+      .step.completed {
+        opacity: 0.7;
+      }
+
+      .step-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+
+      .step-icon.pending {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .step-icon.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        animation: spin 1s linear infinite;
+      }
+
+      .step-icon.completed {
+        background: rgba(39, 201, 63, 0.2);
+        border: 2px solid #27c93f;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .step-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .step-detail {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .step-detail.package-name {
+        color: #667eea;
+        font-family: "Courier New", monospace;
+      }
+
+      /* Spinning Loader */
+      .spinner-container {
+        display: flex;
+        justify-content: center;
+        margin: 24px 0;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        position: relative;
+      }
+
+      .spinner-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 3px solid transparent;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .spinner-ring:nth-child(2) {
+        border-top-color: #764ba2;
+        animation-duration: 1.5s;
+      }
+
+      .spinner-ring:nth-child(3) {
+        border-top-color: #f093fb;
+        animation-duration: 2s;
+      }
+
+      /* Tips Section */
+      .tips-container {
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .tip {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+      }
+
+      .tip-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .tip-text {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.5;
+      }
+
+      /* Demo Control Buttons */
+      .demo-controls {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        gap: 12px;
+        z-index: 10;
+      }
+
+      .demo-btn {
+        padding: 10px 20px;
+        background: rgba(102, 126, 234, 0.2);
+        border: 1px solid rgba(102, 126, 234, 0.5);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+      }
+
+      .demo-btn:hover {
+        background: rgba(102, 126, 234, 0.3);
+        transform: translateY(-2px);
+      }
+    </style>
   </head>
   <body>
-    <div>Loading preview...</div>
+    <!-- Animated Background -->
+    <div class="bg-animation" id="particles"></div>
+
+    <!-- Loading Container -->
+    <div class="loading-container">
+      <div class="loading-card">
+        <!-- Logo -->
+        <div class="logo-container">
+          <div class="logo">⚡</div>
+        </div>
+
+        <!-- Status Text -->
+        <div class="status-text">
+          <h2 id="statusTitle">Setting up your environment</h2>
+          <p id="statusSubtext">This will only take a moment...</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-percentage" id="progressText">0%</div>
+        </div>
+
+        <!-- Spinner -->
+        <div class="spinner-container">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+          </div>
+        </div>
+
+        <!-- Installation Steps -->
+        <div class="steps-container" id="stepsContainer">
+          <div class="step" data-step="0">
+            <div class="step-icon pending">📦</div>
+            <div class="step-content">
+              <div class="step-title">Initializing WebContainer</div>
+              <div class="step-detail">Starting environment...</div>
+            </div>
+          </div>
+          <div class="step" data-step="1">
+            <div class="step-icon pending">⬇️</div>
+            <div class="step-content">
+              <div class="step-title">Installing dependencies</div>
+              <div class="step-detail package-name">npm install</div>
+            </div>
+          </div>
+          <div class="step" data-step="2">
+            <div class="step-icon pending">🔨</div>
+            <div class="step-content">
+              <div class="step-title">Building project</div>
+              <div class="step-detail">Compiling assets...</div>
+            </div>
+          </div>
+          <div class="step" data-step="3">
+            <div class="step-icon pending">🚀</div>
+            <div class="step-content">
+              <div class="step-title">Starting dev server</div>
+              <div class="step-detail">Almost ready...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="tips-container">
+          <div class="tip">
+            <span class="tip-icon">💡</span>
+            <div class="tip-text">
+              <strong>Pro tip:</strong> Your entire development environment runs
+              securely in your browser with WebContainer technology.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo Controls -->
+    <!-- <div class="demo-controls">
+      <button class="demo-btn" onclick="startLoading()">Restart Demo</button>
+    </div> -->
+
+    <script>
+      // Create floating particles
+      function createParticles() {
+        const container = document.getElementById("particles");
+        const particleCount = 30;
+
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement("div");
+          particle.className = "particle";
+
+          const startX = Math.random() * window.innerWidth;
+          const startY = Math.random() * window.innerHeight;
+          const endX = (Math.random() - 0.5) * 400;
+          const endY = (Math.random() - 0.5) * 400;
+
+          particle.style.left = startX + "px";
+          particle.style.top = startY + "px";
+          particle.style.setProperty("--tx", endX + "px");
+          particle.style.setProperty("--ty", endY + "px");
+          particle.style.animationDelay = Math.random() * 5 + "s";
+
+          container.appendChild(particle);
+        }
+      }
+
+      // Loading simulation
+      const steps = [
+        {
+          title: "Initializing WebContainer",
+          subtitle: "Starting environment...",
+          duration: 1500,
+        },
+        {
+          title: "Installing dependencies",
+          subtitle: "npm install react react-dom",
+          duration: 2500,
+        },
+        {
+          title: "Building project",
+          subtitle: "Webpack compiling...",
+          duration: 2000,
+        },
+        {
+          title: "Starting dev server",
+          subtitle: "Server running on port 3000",
+          duration: 1500,
+        },
+      ];
+
+      let currentStep = 0;
+      let progress = 0;
+
+      function updateStep(stepIndex) {
+        const stepElements = document.querySelectorAll(".step");
+        const statusTitle = document.getElementById("statusTitle");
+        const statusSubtext = document.getElementById("statusSubtext");
+
+        // Update previous steps to completed
+        for (let i = 0; i < stepIndex; i++) {
+          stepElements[i].classList.remove("active");
+          stepElements[i].classList.add("completed");
+          stepElements[i]
+            .querySelector(".step-icon")
+            .classList.remove("active", "pending");
+          stepElements[i]
+            .querySelector(".step-icon")
+            .classList.add("completed");
+          stepElements[i].querySelector(".step-icon").textContent = "✓";
+        }
+
+        // Update current step to active
+        if (stepIndex < steps.length) {
+          stepElements[stepIndex].classList.add("active");
+          stepElements[stepIndex]
+            .querySelector(".step-icon")
+            .classList.remove("pending");
+          stepElements[stepIndex]
+            .querySelector(".step-icon")
+            .classList.add("active");
+
+          statusTitle.textContent = steps[stepIndex].title;
+          statusSubtext.textContent = steps[stepIndex].subtitle;
+        }
+      }
+
+      function animateProgress(targetProgress, duration) {
+        const startProgress = progress;
+        const diff = targetProgress - startProgress;
+        const startTime = Date.now();
+
+        function update() {
+          const elapsed = Date.now() - startTime;
+          const ratio = Math.min(elapsed / duration, 1);
+
+          progress = startProgress + diff * ratio;
+
+          document.getElementById("progressFill").style.width = progress + "%";
+          document.getElementById("progressText").textContent =
+            Math.round(progress) + "%";
+
+          if (ratio < 1) {
+            requestAnimationFrame(update);
+          }
+        }
+
+        update();
+      }
+
+      async function startLoading() {
+        // Reset
+        progress = 0;
+        currentStep = 0;
+        document.getElementById("progressFill").style.width = "0%";
+        document.getElementById("progressText").textContent = "0%";
+
+        const stepElements = document.querySelectorAll(".step");
+        stepElements.forEach((step) => {
+          step.classList.remove("active", "completed");
+          const icon = step.querySelector(".step-icon");
+          icon.classList.remove("active", "completed");
+          icon.classList.add("pending");
+          icon.textContent = step
+            .querySelector(".step-title")
+            .textContent.includes("Initializing")
+            ? "📦"
+            : step
+                .querySelector(".step-title")
+                .textContent.includes("Installing")
+            ? "⬇️"
+            : step.querySelector(".step-title").textContent.includes("Building")
+            ? "🔨"
+            : "🚀";
+        });
+
+        document.getElementById("statusTitle").textContent =
+          "Setting up your environment";
+        document.getElementById("statusSubtext").textContent =
+          "This will only take a moment...";
+
+        // Run through steps
+        for (let i = 0; i < steps.length; i++) {
+          updateStep(i);
+          const targetProgress = ((i + 1) / steps.length) * 100;
+          animateProgress(targetProgress, steps[i].duration);
+          await new Promise((resolve) =>
+            setTimeout(resolve, steps[i].duration)
+          );
+        }
+
+        // Complete
+        document.getElementById("statusTitle").textContent =
+          "Environment ready!";
+        document.getElementById("statusSubtext").textContent =
+          "Launching your workspace...";
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Fade out simulation (in real app, this would redirect to the editor)
+        document.querySelector(".loading-card").style.transition =
+          "opacity 0.5s";
+        document.querySelector(".loading-card").style.opacity = "0";
+      }
+
+      // Initialize
+      createParticles();
+      startLoading();
+    </script>
   </body>
 </html>
