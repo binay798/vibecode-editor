@@ -35,12 +35,7 @@ export function CustomTerminal({ webContainer }: Props) {
   useEffect(() => {
     (async () => {
       dispatch(setTerminalState(false));
-      console.log(
-        "Start",
-        codeData.monacoEditorCodeData,
-        terminal,
-        webContainer
-      );
+      console.log("Start", codeData);
       if (codeData.monacoEditorCodeData && terminal && webContainer) {
         console.log("Before INstall");
         // 4️⃣ Spawn npm install
