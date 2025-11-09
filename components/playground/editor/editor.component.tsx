@@ -83,9 +83,9 @@ export function MEditor({ webContainer, playgroundId }: Props) {
           )
         );
         if (playgroundProject.project.fileStructure) {
-          console.log(playgroundProject.project.fileStructure);
           const x = addAbsolutePaths(playgroundProject.project.fileStructure);
           setRootDir(x);
+          dispatch(setMonacoEditorCodeData(JSON.parse(JSON.stringify(x))));
         }
         if (playgroundProject.project.webContainerStructure) {
           dispatch(
