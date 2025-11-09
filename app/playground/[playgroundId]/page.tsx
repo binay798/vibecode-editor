@@ -43,7 +43,11 @@ export default function PlaygroundPage(props: Props) {
             </Panel>
             <PanelResizeHandle className="h-0.5 bg-stone-700" />
             <Panel defaultSize={20}>
-              <CustomWebContainer webContainer={webContainer as WebContainer} />
+              {webContainer && (
+                <CustomWebContainer
+                  webContainer={webContainer as WebContainer}
+                />
+              )}
             </Panel>
           </PanelGroup>
         </Panel>
