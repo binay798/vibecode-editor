@@ -32,6 +32,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   compiler: {
     emotion: true,
+    removeConsole: true,
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
