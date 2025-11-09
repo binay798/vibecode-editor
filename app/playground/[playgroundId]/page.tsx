@@ -6,29 +6,41 @@ import React, { useEffect, useState } from "react";
 import { MEditor } from "@/components/playground/editor/editor.component";
 import { CustomWebContainer } from "@/components/playground/webcontainer/webcontainer.component";
 import { WebPreview } from "@/components/playground/webPreview/webPreview.component";
-
+import { createWebcontainer } from "@/lib/bootWebcontainer";
 interface Props {
   params: Promise<{ playgroundId: string }>;
 }
+
 export default function PlaygroundPage(props: Props) {
   const [webContainer, setWebContainer] = useState<WebContainer | null>(null);
   const params = React.use(props.params);
 
+  // useEffect(() => {
+  //   const createWebContainer = async () => {
+  //     try {
+  //       const webContainerInstance = await WebContainer.boot();
+  //       setWebContainer(webContainerInstance);
+  //     } catch {}
+  //   };
+
+  //   if (!webContainer) {
+  //     createWebContainer();
+  //   }
+
+  //   // Ideally, we should clean up the WebContainer instance when the component is unmounted.
+  //   // But there is an issue with the current implementation of WebContainer that prevents it from being torn down.
+  //   // https://github.com/stackblitz/webcontainer-core/issues/1125
+  //   return () => {
+  //     webContainer?.teardown();
+  //     setWebContainer(null);
+  //   };
+  // }, []);
+
   useEffect(() => {
-    const createWebContainer = async () => {
-      const webContainerInstance = await WebContainer.boot();
-      setWebContainer(webContainerInstance);
-    };
-
-    createWebContainer();
-
-    // Ideally, we should clean up the WebContainer instance when the component is unmounted.
-    // But there is an issue with the current implementation of WebContainer that prevents it from being torn down.
-    // https://github.com/stackblitz/webcontainer-core/issues/1125
-    // return () => {
-    //   webContainer?.teardown();
-    //   setWebContainer(null);
-    // };
+    (async () => {
+      const webContainer = await createWebcontainer();
+      setWebContainer(webContainer);
+    })();
   }, []);
   return (
     <div className="text-white h-[100vh]">

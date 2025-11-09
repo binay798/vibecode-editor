@@ -2,7 +2,7 @@ import { Terminal as XTerminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
 import React, { useEffect } from "react";
 import { FitAddon } from "@xterm/addon-fit";
-import type { WebContainer } from "@webcontainer/api";
+import type { WebContainer, WebContainerProcess } from "@webcontainer/api";
 import { useDispatch, useSelector } from "../../../store/hooks.store";
 import { setTerminalState } from "@/store/redux/editor/editor.slice";
 
@@ -31,8 +31,10 @@ export function CustomTerminal({ webContainer }: Props) {
       resizeObserver.disconnect();
     };
   }, []);
+  console.log(terminal);
 
   useEffect(() => {
+    let devProcess: WebContainerProcess | null = null;
     (async () => {
       dispatch(setTerminalState(false));
       console.log("Start", codeData);
@@ -58,7 +60,7 @@ export function CustomTerminal({ webContainer }: Props) {
           terminal?.writeln(
             "\x1b[32m✅ Dependencies installed successfully!\x1b[0m"
           );
-          const devProcess = await webContainer.spawn("npm", ["run", "dev"]);
+          devProcess = await webContainer.spawn("npm", ["run", "dev"]);
           devProcess.output.pipeTo(
             new WritableStream({
               write(data) {
@@ -70,6 +72,10 @@ export function CustomTerminal({ webContainer }: Props) {
         }
       }
     })();
+
+    return () => {
+      // devProcess?.kill();
+    };
   }, [codeData.monacoEditorCodeData, terminal, webContainer, dispatch]);
 
   React.useEffect(() => {

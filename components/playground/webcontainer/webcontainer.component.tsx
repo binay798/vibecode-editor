@@ -11,6 +11,7 @@ export function CustomWebContainer({ webContainer }: Props) {
     (store) => store.codeData.webContainerCodeData
   );
   useEffect(() => {
+    console.log(webContainer, webContainerFiles);
     // webContainer;
     // MOUNT FILES
     if (webContainerFiles) {

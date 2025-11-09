@@ -129,14 +129,14 @@ export default function ProjectTable() {
                 <TableRow key={id}>
                   <TableCell className="font-medium">
                     <div className="flex flex-col">
-                      <Link
+                      <a
                         href={`/playground/${proj.id}`}
                         className="hover:underline"
                       >
                         <span className="font-semibold">
                           {proj?.name ?? proj.id}
                         </span>
-                      </Link>
+                      </a>
                       <span className="text-sm text-gray-500 line-clamp-1">
                         {proj?.description ?? proj.userId}
                       </span>
