@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import "./sidebar.css";
 import {
   Code2,
   Compass,
@@ -65,8 +66,12 @@ export function DashboardSidebar() {
   return (
     <Sidebar variant="inset" collapsible="icon" className="border-1 border-r">
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-4 py-3 justify-center">
-          <Image src={"/logo.svg"} alt="logo" height={60} width={60} />
+        <div className="flex items-center gap-2  py-3 justify-start">
+          {/* <Image src={"/logo.svg"} alt="logo" height={60} width={60} /> */}
+          <div className="logo">
+            <div className="logo-icon">⚡</div>
+            DevFlow
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>

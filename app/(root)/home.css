@@ -75,7 +75,7 @@ header {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #e93f3f 0%, #e82b2b 100%);
+  /* background: linear-gradient(135deg, #e93f3f 0%, #e82b2b 100%); */
   border-radius: 8px;
   display: flex;
   align-items: center;
