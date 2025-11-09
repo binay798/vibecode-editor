@@ -32,9 +32,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   compiler: {
     emotion: true,
-    removeConsole: process.env.NODE_ENV === "production",
   },
-  swcMinify: true,
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.optimization.splitChunks = {
