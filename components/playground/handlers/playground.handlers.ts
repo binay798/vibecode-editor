@@ -19,6 +19,7 @@ export function createPlaygroundProjectHandler(
         monacoEditorFileStructurePayload as unknown as InputJsonValue,
       webContainerStructure: webContainerFileStructurePayload,
       userId,
+      name: "",
     },
   });
 }
