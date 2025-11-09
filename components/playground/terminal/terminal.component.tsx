@@ -35,10 +35,12 @@ export function CustomTerminal({ webContainer }: Props) {
   useEffect(() => {
     (async () => {
       dispatch(setTerminalState(false));
+      console.log("Start");
       if (codeData.monacoEditorCodeData && terminal && webContainer) {
+        console.log("Before INstall");
         // 4️⃣ Spawn npm install
         const installProcess = await webContainer.spawn("npm", ["install"]);
-
+        console.log("After INstall");
         // 5️⃣ Pipe process output to xterm
         installProcess.output.pipeTo(
           new WritableStream({
